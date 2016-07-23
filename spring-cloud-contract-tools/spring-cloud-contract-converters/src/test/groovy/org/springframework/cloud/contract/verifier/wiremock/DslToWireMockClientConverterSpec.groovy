@@ -288,4 +288,67 @@ class DslToWireMockClientConverterSpec extends Specification {
 				, json, false)
 	}
 
+	@Issue("#50")
+	def 'should convert dsl to wiremock with regex in int'() {
+		given:
+			def converter = new DslToWireMockClientConverter()
+		and:
+			File file = tmpFolder.newFile("dsl_from_docs.groovy")
+			file.write('''
+			org.springframework.cloud.contract.spec.Contract.make {
+        request {
+          method 'POST\'
+          url '/check\'
+          body("""
+          {
+          "name":"${value(consumer(regex('[a-zA-Z]+')))}",
+          "age": ${value(consumer(regex('[3-9][0-9]|2[2-9]')))}
+        }
+        """
+          )
+        }
+        response {
+          status 200
+          body( """{
+              "status": "OK"
+            }"""
+          )
+          headers {
+            header 'Content-Type', 'application/json\'
+          }
+        }
+      }
+	''')
+		when:
+		String json = converter.convertContent("Test", new ContractMetadata(file.toPath(), false, 0, null))
+		then:
+		JSONAssert.assertEquals(
+'''
+{
+  "request" : {
+    "url" : "/users/password",
+    "method" : "POST",
+    "bodyPatterns" : [ {
+      "matchesJsonPath" : "$[?(@.email =~ /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,4})?/)]"
+    }, {
+      "matchesJsonPath" : "$[?(@.callback_url =~ /((http[s]?|ftp):\\\\/)\\\\/?([^:\\\\/\\\\s]+)(:[0-9]{1,5})?/)]"
+    } ],
+    "headers" : {
+      "Content-Type" : {
+        "equalTo" : "application/json"
+      }
+    }
+  },
+  "response" : {
+    "status" : 404,
+    "body" : "{\\"code\\":\\"123123\\",\\"message\\":\\"User not found by email == [not.existing@user.com]\\"}",
+    "headers" : {
+      "Content-Type" : "application/json"
+    }
+  },
+  "priority" : 1
+}
+''', json, false)
+	}
+
 }
