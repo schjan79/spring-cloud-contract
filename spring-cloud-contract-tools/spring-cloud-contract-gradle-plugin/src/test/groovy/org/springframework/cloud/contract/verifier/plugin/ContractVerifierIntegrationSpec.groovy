@@ -118,7 +118,9 @@ abstract class ContractVerifierIntegrationSpec extends Specification {
 	}
 
 	protected File file(String path) {
-		return new File(testProjectDir, path)
+		File file = new File(testProjectDir, path)
+		println "Resolved path is [$file]"
+		return file
 	}
 
 	protected boolean fileExists(String path) {

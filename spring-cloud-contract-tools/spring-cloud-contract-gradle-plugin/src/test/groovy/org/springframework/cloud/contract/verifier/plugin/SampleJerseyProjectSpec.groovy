@@ -30,7 +30,8 @@ class SampleJerseyProjectSpec extends ContractVerifierIntegrationSpec {
 		given:
 			assert fileExists('build.gradle')
 		expect:
-			runTasksSuccessfully('check', "publishToMavenLocal")
+			//runTasksSuccessfully('check', "publishToMavenLocal", "--debug")
+			runTasksSuccessfully('check', "publishToMavenLocal", "--debug", "--offline")
 			jarContainsContractVerifierContracts('fraudDetectionService/build/libs')
 	}
 
@@ -39,7 +40,8 @@ class SampleJerseyProjectSpec extends ContractVerifierIntegrationSpec {
 			switchToJunitTestFramework()
 			assert fileExists('build.gradle')
 		expect:
-			runTasksSuccessfully('check', "publishToMavenLocal")
+			//runTasksSuccessfully('check', "publishToMavenLocal", "--debug")
+			runTasksSuccessfully('check', "publishToMavenLocal", "--debug", "--offline")
 			jarContainsContractVerifierContracts('fraudDetectionService/build/libs')
 	}
 
