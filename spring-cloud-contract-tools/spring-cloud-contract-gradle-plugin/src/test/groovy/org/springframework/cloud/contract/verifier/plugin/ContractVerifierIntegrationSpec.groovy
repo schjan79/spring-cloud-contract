@@ -35,6 +35,7 @@ abstract class ContractVerifierIntegrationSpec extends Specification {
 	public static final String JUNIT = "targetFramework = 'JUnit'"
 	public static final String MVC_SPEC = "baseClassForTests = 'org.springframework.cloud.MvcSpec'"
 	public static final String MVC_TEST = "baseClassForTests = 'org.springframework.cloud.MvcTest'"
+	protected static final boolean WORK_OFFLINE = Boolean.parseBoolean(System.getProperty('WORK_OFFLINE', 'false'))
 
 	File testProjectDir
 
@@ -87,6 +88,12 @@ abstract class ContractVerifierIntegrationSpec extends Specification {
 			assert task.outcome == expectedOutcome
 		}
 		return result
+	}
+
+	protected String[] checkAndPublishToMavenLocal() {
+		String[] args = ["check", "publishToMavenLocal", "--debug"] as String[]
+		if (WORK_OFFLINE) args << "--offline"
+		return args
 	}
 
 	protected BuildResult run(String... tasks) {

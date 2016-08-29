@@ -30,8 +30,9 @@ class SampleProjectSpec extends ContractVerifierIntegrationSpec {
 		given:
 			assert fileExists('build.gradle')
 		expect:
-			//runTasksSuccessfully('check', "publishToMavenLocal", "--debug")
-			runTasksSuccessfully('check', "publishToMavenLocal", "--debug", "--offline")
+			String[] args = ["check", "publishToMavenLocal", "--debug"] as String[]
+			if (WORK_OFFLINE) args << "--offline"
+			runTasksSuccessfully(args)
 			jarContainsContractVerifierContracts('fraudDetectionService/build/libs')
 	}
 
@@ -40,8 +41,7 @@ class SampleProjectSpec extends ContractVerifierIntegrationSpec {
 			switchToJunitTestFramework()
 			assert fileExists('build.gradle')
 		expect:
-			//runTasksSuccessfully('check', "publishToMavenLocal", "--debug", "--offline")
-			runTasksSuccessfully('check', "publishToMavenLocal", "--debug")
+			runTasksSuccessfully(checkAndPublishToMavenLocal())
 			jarContainsContractVerifierContracts('fraudDetectionService/build/libs')
 	}
 

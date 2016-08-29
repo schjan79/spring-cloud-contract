@@ -39,8 +39,7 @@ class BasicFunctionalSpec extends ContractVerifierIntegrationSpec {
 
 	def "should pass basic flow"() {
 		when:
-			//BuildResult result = run("check", "publishToMavenLocal", "--debug")
-			BuildResult result = run("check", "publishToMavenLocal", "--debug", "--offline")
+			BuildResult result = run(checkAndPublishToMavenLocal())
 		then:
 			result.task(":generateWireMockClientStubs").outcome == SUCCESS
 			result.task(":generateContractTests").outcome == SUCCESS

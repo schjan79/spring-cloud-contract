@@ -18,7 +18,8 @@ ext {
 
 	contractVerifierGradlePluginLibsDir ="$buildDir/contractVerifier-gradle-plugin-libs"
 	testSystemProperties = [
-			'contract-gradle-plugin-libs-dir': contractVerifierGradlePluginLibsDir
+			'contract-gradle-plugin-libs-dir': contractVerifierGradlePluginLibsDir,
+			"WORK_OFFLINE" : gradle.startParameter.isOffline() ? 'TRUE' : 'FALSE'
 	]
 }
 

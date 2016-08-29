@@ -78,13 +78,13 @@ configure([project(':fraudDetectionService'), project(':loanApplicationService')
 	}
 
 	dependencies {
-		//compile 'org.glassfish.jersey.containers:jersey-container-jetty-http:2.15'
+		compile 'org.glassfish.jersey.containers:jersey-container-jetty-http:2.23.2'
 		compile 'org.springframework.boot:spring-boot-starter-jersey'
 		compile 'org.springframework.boot:spring-boot-starter-jetty'
 
 		testRuntime "org.spockframework:spock-spring:$spockVersion"
 
-		//compile 'org.glassfish.jersey.connectors:jersey-apache-connector:2.15'
+		compile 'org.glassfish.jersey.connectors:jersey-apache-connector:2.23.2'
 		testCompile "org.mockito:mockito-core"
 		testCompile "org.springframework:spring-test"
 		testCompile "org.springframework.boot:spring-boot-test"
