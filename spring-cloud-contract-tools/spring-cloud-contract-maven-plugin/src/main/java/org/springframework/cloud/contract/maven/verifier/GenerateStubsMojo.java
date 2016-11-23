@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -31,6 +32,7 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.archiver.Archiver;
 import org.codehaus.plexus.archiver.jar.JarArchiver;
+import org.springframework.cloud.contract.stubrunner.util.StringUtils;
 
 /**
  * Picks the converted .json files and creates a jar. Requires convert to be executed first
@@ -83,6 +85,19 @@ public class GenerateStubsMojo extends AbstractMojo {
 	@Parameter(defaultValue = "stubs")
 	private String classifier;
 
+	@Parameter(property = "contractDependency")
+	private Dependency contractDependency;
+
+	/**
+	 * The path in the JAR with all the contracts where contracts for this particular service lay.
+	 * If not provided will be resolved to {@code groupid/artifactid}. Example:
+	 * </p>
+	 * If {@code groupid} is {@code com.example} and {@code artifactid} is {@code service} then the resolved path will be
+	 * {@code /com/example/artifactid}
+	 */
+	@Parameter(property = "contractsPath")
+	private String contractsPath;
+
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (this.skip || this.jarSkip) {
 			getLog().info(
@@ -110,7 +125,7 @@ public class GenerateStubsMojo extends AbstractMojo {
 		try {
 			if (this.attachContracts) {
 				this.archiver.addDirectory(stubsOutputDir,
-						new String[] { STUB_MAPPING_FILE_PATTERN, CONTRACT_FILE_PATTERN },
+						contractIncludes(),
 						excludedFilesEmpty() ? new String[0] : this.excludedFiles);
 			}
 			else {
@@ -141,6 +156,40 @@ public class GenerateStubsMojo extends AbstractMojo {
 		String[] array = new String[excludes.size()];
 		array = excludes.toArray(array);
 		return array;
+	}
+
+	private String[] contractIncludes() {
+		List<String> includes = new ArrayList<>();
+		if (this.contractDependency != null) {
+			if (StringUtils.hasText(this.contractsPath)) {
+				String path = appendSlashIfMissing(this.contractsPath);
+				if (this.attachContracts) {
+					includes.add(path + CONTRACT_FILE_PATTERN);
+				}
+				includes.add(path + STUB_MAPPING_FILE_PATTERN);
+			} else {
+				String path = path(this.project.getGroupId()) + "/" +
+						path(this.project.getArtifactId());
+				includes.add(path + CONTRACT_FILE_PATTERN);
+				includes.add(path + STUB_MAPPING_FILE_PATTERN);
+			}
+		} else {
+			if (this.attachContracts) {
+				includes.add(CONTRACT_FILE_PATTERN);
+			}
+			includes.add(STUB_MAPPING_FILE_PATTERN);
+		}
+		String[] array = new String[includes.size()];
+		array = includes.toArray(array);
+		return array;
+	}
+
+	private String path(String path) {
+		return path.replace(".", "/");
+	}
+
+	private String appendSlashIfMissing(String path) {
+		return path.endsWith("/") ? path : path + "/";
 	}
 
 	private boolean excludedFilesEmpty() {
