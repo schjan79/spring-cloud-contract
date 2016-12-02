@@ -1,0 +1,16 @@
+{
+  "priority": 1,
+  "request" : {
+    "urlPath" : "/resource",
+    "method" : "GET",
+    "queryParameters" : {
+      "name" : {
+        "equalTo" : "John Doe"
+      }
+    }
+  },
+  "response" : {
+    "status" : 200,
+    "body" : "Hello John Doe"
+  }
+}
